@@ -44,6 +44,8 @@ module AdminScript
       end
 
       def script
+        # TODO: klass.instance_method(:hoge).source はファイルを変更しても毎回同じのため、
+        #       再起動しないと画面上のメソッドソースは変更されない(実際には変更されているため処理上は問題ない)
         instance_method(:perform!).source
       end
     end
@@ -61,6 +63,11 @@ module AdminScript
 
     def perform!
       raise NotImplementedError, 'not implemented'
+    end
+
+    # TODO: これを入れておかないとform_forで渡した時にpatchにならない
+    def persisted?
+      true
     end
 
     private

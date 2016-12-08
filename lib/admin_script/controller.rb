@@ -3,7 +3,7 @@ module AdminScript
     extend ActiveSupport::Concern
 
     included do
-      before_action :set_admin_script_class, only: [:show, :perform]
+      before_action :set_admin_script_class, only: [:show, :update, :perform]
       append_view_path(File.expand_path('../../../app/views', __FILE__))
 
       helper_method :admin_script_path, :admin_scripts_path
@@ -19,19 +19,23 @@ module AdminScript
       render 'admin_scripts/show'
     end
 
-    def update
+    # modelで{notice: xxx}を返すと成功メッセージ、{alert: xxx}を返すとエラーメッセージを表示するように改造
+    def perform
       @admin_script = @admin_script_class.new(admin_script_params)
 
-      success = @admin_script.perform!
+      result = @admin_script.perform!
+      notice = result.try(:fetch, :notice, nil)
+      alert = result.try(:fetch, :alert, nil)
       location = @admin_script.location_url || { action: :index }
 
-      if success
-        redirect_to location, notice: t('messages.success')
+      if notice
+        redirect_to location, notice: notice || t('messages.success')
       else
-        flash.now[:alert] = t('messages.fail')
+        flash.now[:alert] = alert || t('messages.fail')
         render 'admin_scripts/show', status: :unprocessable_entity
       end
     end
+    alias_method :update, :perform
 
     private
 
@@ -47,7 +51,7 @@ module AdminScript
 
     # TODO: 適当すぎるのでrouterに載せる
     def admin_script_path(id)
-      param = id&.to_param || id
+      param = id.try(:to_param) || id
       "/admin_scripts/#{param}"
     end
 
