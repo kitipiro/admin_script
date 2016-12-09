@@ -1,5 +1,7 @@
 require 'active_support/core_ext/class/subclasses'
 require 'active_model'
+# TODO: Rails5は標準。Rails4は別gem
+require 'method_source'
 
 module AdminScript
   class Base
