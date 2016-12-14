@@ -1,0 +1,2 @@
+To make a AdminScript template file to your Rails App, with configuration values, just do:
+    rails generate admin_script:new your_script_name
